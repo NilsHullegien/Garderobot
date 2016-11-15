@@ -2,14 +2,14 @@
 
 #rospy = ros python
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import Int32
 
 def talker():
 	# Init de publisher:
 	# Gaat berichten verzenden op "topic" 'chatter' (soort kanaal)
 	# Gaat berichten versturen via type String
 	# De queue_size is het aantal berichten dat wordt opgeslagen in een queue.
-	pub = rospy.Publisher('chatter', String, queue_size=10)
+	pub = rospy.Publisher('chatter', Int32, queue_size=10)
 	
 	# Init de node genaamd 'talker'
 	# Voor dit punt kan er nog niet met de master node gecommuniceerd worden.
@@ -20,11 +20,11 @@ def talker():
 	
 	# Zo lang als het programma draait, doe wat in de loop staat
 	while not rospy.is_shutdown():
-		hello_str = "hello world %s" % rospy.get_time()
+		msg = 3
 		# Log de info van hello_str naar het scherm, de log file en naar rosout (voor rqt_control e.d.)
-		rospy.loginfo(hello_str)
+		rospy.loginfo(msg)
 		# publish het bericht hello_str naar topic 'chatter'
-		pub.publish(hello_str)
+		pub.publish(msg)
 		# Slaap zo lang dat de 10 hz van de rate gehandhaafd blijft. 
 		rate.sleep()
 		

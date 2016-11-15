@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import Int32
 
 def callback(data):
 	rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
@@ -13,7 +13,7 @@ def listener():
 	
 	# Subscribe op het topic 'chatter' dat gemaakt is in de talker.py file. 
 	# De methode callback wordt aangeroepen op het moment dat de subscriber een String message ontvangt. 
-	rospy.Subscriber('chatter', String, callback)
+	rospy.Subscriber('chatter', Int32, callback)
 	
 	# Spin zorgt ervoor dat python niet afsluit totdat de listener node gestopt is. 
 	rospy.spin()
