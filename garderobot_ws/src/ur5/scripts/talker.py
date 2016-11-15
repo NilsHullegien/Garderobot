@@ -7,7 +7,7 @@ from std_msgs.msg import Int32
 def talker():
 	# Init de publisher:
 	# Gaat berichten verzenden op "topic" 'chatter' (soort kanaal)
-	# Gaat berichten versturen via type String
+	# Gaat berichten versturen via type Int32
 	# De queue_size is het aantal berichten dat wordt opgeslagen in een queue.
 	pub = rospy.Publisher('chatter', Int32, queue_size=10)
 	
@@ -21,11 +21,11 @@ def talker():
 	# Zo lang als het programma draait, doe wat in de loop staat
 	while not rospy.is_shutdown():
 		msg = 3
-		# Log de info van hello_str naar het scherm, de log file en naar rosout (voor rqt_control e.d.)
+		# Log de info van msg naar het scherm, de log file en naar rosout (voor rqt_control e.d.)
 		rospy.loginfo(msg)
-		# publish het bericht hello_str naar topic 'chatter'
+		# Publish het bericht msg naar topic 'chatter'
 		pub.publish(msg)
-		# Slaap zo lang dat de 10 hz van de rate gehandhaafd blijft. 
+		# Slaap zo lang dat de 10 Hz van de rate gehandhaafd blijft.
 		rate.sleep()
 		
 		
