@@ -21,14 +21,14 @@ class Garderobot(object):
     def __str__(self):
         return repr(self.rack)
 
-    def count(self) -> int:
+    def count(self):
         return sum([len(v) for k, v in self.rack])
 
-    def has_space(self) -> bool:
+    def has_space(self):
         return self.count() < self.size
 
     # TODO implement
-    def hang(self, position: int, id: int=JACKET_ID) -> object:
+    def hang(self, position, id=JACKET_ID):
         if position < 0 or position >= self.size:
             raise WardrobeError("Position {} is not in range of the wardrobe!".format(position))
 
@@ -40,7 +40,7 @@ class Garderobot(object):
         return self
 
     # TODO implement
-    def take(self, position: int) -> str:
+    def take(self, position):
         if position < 0 or position >= self.size:
             raise WardrobeError("Position {} is not in range of the wardrobe!".format(position))
 
@@ -53,31 +53,31 @@ class Garderobot(object):
         return id
 
     # TODO implement
-    def autohang(self, id: int = JACKET_ID) -> str:
+    def autohang(self, id=JACKET_ID):
         return
 
-    def empty(self) -> object:
+    def empty(self):
         self.rack = dict()
         return self
 
 
 if __name__ == "__main__":
-    print("Initializing wardrobe...")
+    print "Initializing wardrobe..."
     wr = Garderobot(11)
-    print(wr.count(), wr)
-    print("Hanging a jacket on position 6...")
+    print wr.count(), wr
+    print "Hanging a jacket on position 6..."
     wr.hang(6)
-    print("Hanging a jacket on position 0...")
+    print "Hanging a jacket on position 0..."
     wr.hang(0)
-    print("Hanging a jacket on position 3...")
+    print "Hanging a jacket on position 3..."
     wr.hang(3)
-    print(wr.count(), wr)
-    print("Taking a jacket from position 6...")
+    print wr.count(), wr
+    print "Taking a jacket from position 6..."
     wr.take(6)
-    print(wr.count(), wr)
+    print wr.count(), wr
 
     try:
-        print("Trying to hang a jacket on position 3...")
+        print "Trying to hang a jacket on position 3..."
         wr.hang(3)
     except WardrobeError as e:
-        print(e)
+        print e
