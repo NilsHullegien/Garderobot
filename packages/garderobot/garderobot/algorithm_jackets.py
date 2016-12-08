@@ -27,6 +27,7 @@ class MyTest(unittest.TestCase):
 		hangJacket(2)
 		hangJacket(3)
 		self.assertEqual(autoHangJacket(),5)
+    
 #The size of the carousel	
 size = 11
 #The theshold at which the carousel is considered stable.
