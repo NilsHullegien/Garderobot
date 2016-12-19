@@ -16,3 +16,6 @@ Runnen van moveit commander:
 source devel/setup.bash
 rosrun moveit_commander moveit_commander_cmdline.py 
 use manipulator
+
+Direct praten met de UR5, library:
+https://github.com/SintefRaufossManufacturing/python-urx
