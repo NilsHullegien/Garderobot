@@ -19,3 +19,6 @@ use manipulator
 
 Direct praten met de UR5, library:
 https://github.com/SintefRaufossManufacturing/python-urx
+
+Recorden UR5 movement:
+https://github.com/personalrobotics/joint_state_recorder
