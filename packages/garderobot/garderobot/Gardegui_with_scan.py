@@ -3,11 +3,13 @@ import zbar
 import time
 import threading
 import Tkinter as tk
+import garderobot
 
 from PIL import Image, ImageTk
 
 
 title_font = ("Helvetica", 18, "bold")
+algo = garderobot.Garderobot(11, 2)
 
 class Gardegui(tk.Tk):
 
@@ -27,6 +29,7 @@ class Gardegui(tk.Tk):
             self.windows[page_name] = window
 
             window.grid(row = 0, column = 0, sticky = "nsew")
+        algo.hang(9)
         
         self.show_window("Start")
 
@@ -217,6 +220,8 @@ class ScanWindow(tk.Frame):
         self.lock.release()
 
         print 'received symbol', '"%s"' % symbol_data
+        temp = int(symbol_data)
+        algo.take(temp)
         self.after(500, self.quit)
 
     def on_frame(self, *args):
