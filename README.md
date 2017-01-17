@@ -16,3 +16,9 @@ Runnen van moveit commander:
 source devel/setup.bash
 rosrun moveit_commander moveit_commander_cmdline.py 
 use manipulator
+
+
+=======================================================
+https://pypi.python.org/pypi/math3d/ Math3d, nodig als subpackage
+https://github.com/SintefRaufossManufacturing/python-urx Python URX, code van de bewegingen van de UR5 (clonen van repo)
+=======================================================
