@@ -1,0 +1,15 @@
+[submodule "garderobot_ws/src/python-urx"]
+	path = garderobot_ws/src/python-urx
+	url = git@github.com:SintefRaufossManufacturing/python-urx.git
+[submodule "garderobot_ws/src/pymath3d"]
+	path = garderobot_ws/src/pymath3d
+	url = http://git.automatics.dyndns.dk/pymath3d.git
+[submodule "garderobot_ws/src/shared_serial"]
+	path = garderobot_ws/src/shared_serial
+	url = git@github.com:wcaarls/shared_serial.git
+[submodule "garderobot_ws/src/threemxl"]
+	path = garderobot_ws/src/threemxl
+	url = git@github.com:wcaarls/threemxl.git
+[submodule "garderobot_ws/src/universal_robot"]
+	path = garderobot_ws/src/universal_robot
+	url = git@github.com:ros-industrial/universal_robot.git
