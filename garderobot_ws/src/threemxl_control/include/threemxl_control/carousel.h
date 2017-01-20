@@ -1,12 +1,8 @@
 #ifndef CAROUSEL_H
 #define CAROUSEL_H
 
-#include <ros/ros.h>
 #include <threemxl/C3mxl.h>
-#include <threemxl/C3mxlROS.h>
-#include <std_msgs/Int8.h>
-
-#include "threemxl_control/movement_publisher.h"
+#include <threemxl/LxFTDI.h>
 
 class Carousel {
   private:
@@ -18,9 +14,9 @@ class Carousel {
       delete motor;
     }
     
-    void move(double speed);
+    void setSpeed(double speed);
+    void setPosition(double pos, double v, double a);
     double getPosition();
-    void moveCallback(const std_msgs::Int8 &msg);
 };
+
 #endif
-  

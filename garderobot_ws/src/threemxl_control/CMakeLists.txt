@@ -131,7 +131,7 @@ include_directories(
 # add_dependencies(threemxl_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(threemxl_control_node src/threemxl_control.cpp src/carousel.cpp src/movementpublisher.cpp)
+add_executable(threemxl_control_node src/threemxl_control.cpp src/carousel.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
