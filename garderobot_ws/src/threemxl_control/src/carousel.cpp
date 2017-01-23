@@ -38,15 +38,15 @@ Carousel::Carousel()
   motor->set3MxlMode(PWM_MODE);
   
   printf("Initializing...\n");
-  while(motor->init(true) != DXL_SUCCESS) 
+  while(motor->init(false) != DXL_SUCCESS)
   {
     printf("Failed to init, trying again...\n");
     sleep(0.1);
   } 
   printf("Started!\n");
 
-  SAFE_CALL(motor->setSpeed(1.f));
-  sleep(1);
+  SAFE_CALL(motor->setPWM((double)0.5));
+  sleep(5);
 }
 
 void Carousel::setSpeed(double speed)
