@@ -3,12 +3,33 @@ import zbar
 import time
 import threading
 import Tkinter as tk
+import garderobot
+import qrcode
+import string
+import random
+import socket
 
 from PIL import Image, ImageTk
 
+Remote_IP = "169.254.108.222"
+Host_IP = "169.254.223.148"
+Port = 5005
+to_user = "user"
+to_carousel = "carousel"
+grab = "grab"
+hang = "hang"
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((Host_IP,Port))
 
 title_font = ("Helvetica", 18, "bold")
-
+algo = garderobot.Garderobot(11, 2)
+qr = qrcode.QRCode(
+    version = 1,
+    error_correction = qrcode.constants.ERROR_CORRECT_L,
+    box_size = 25,
+    border = 4,
+    )
+idle = True
 class Gardegui(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -21,7 +42,7 @@ class Gardegui(tk.Tk):
         root.grid_columnconfigure(0, weight = 1)
 
         self.windows = {}
-        for F in (Start, Leave, Retrieve, ScanWindow):
+        for F in (Start, Leave, Retrieve, ScanWindow, Qrcode):
             page_name = F.__name__
             window = F(parent = root, controller = self)
             self.windows[page_name] = window
@@ -44,10 +65,66 @@ class Gardegui(tk.Tk):
         window = self.windows["ScanWindow"]
         window.start()
 
+    def show(self):
+        window = self.windows["Qrcode"]
+        window.show()
+
     def stop(self, Next):
         window = self.windows["ScanWindow"]
         window.stop()
         self.show_window(Next)
+
+    def grab(self):
+    #wheel already turned
+        global idle
+        global grab
+        global to_user
+        if idle == True:
+            idle = False
+            sock.sendto(grab,(Remote_IP,Port))
+            while True:
+                data, addr = sock.recvfrom(1024)
+                if data == "done":
+                    print "ok, contimue"
+                    break;
+                
+            sock.sendto(to_user,(Remote_IP,Port))
+            while True:
+                data, addr = sock.recvfrom(1024)
+                if data == "done":
+                    print "ok, done"
+                    break;
+
+            idle = True
+        else:
+            grab()
+            
+    def hang(self):
+        global idle
+        global hang
+        global to_carousel
+        if idle == True:
+            idle = False
+            sock.sendto(to_carousel,(Remote_IP,Port))
+            while True:
+                data, addr = sock.recvfrom(1024)
+                if data == "done":
+                    print "ok, contimue"
+                    break;
+                
+            sock.sendto(hang,(Remote_IP,Port))
+            while True:
+                data, addr = sock.recvfrom(1024)
+                if data == "done":
+                    print "ok, done"
+                    break;
+
+            idle = True
+        else:
+            hang()
+
+    def id_generator(self):
+        return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
     
 class Start(tk.Frame):
 
@@ -57,7 +134,7 @@ class Start(tk.Frame):
         label = tk.Label(self, text = "Welcome to the GardeRobot", font = title_font)
         label.pack(side = "top", fill = "x", pady = 10)
 
-        Button = tk.Button(self, text = "Jas achterlaten / Leave your coat", command = lambda: controller.show_window("Leave"))
+        Button = tk.Button(self, text = "Jas achterlaten / Leave your coat", command = lambda: controller.combineFunc(controller.show_window("Leave"),controller.grab()))
         Button2 = tk.Button(self, text = "Jas ophalen / Retrieve your coat", command = lambda: controller.combineFunc(controller.show_window("ScanWindow"),controller.scan()))
 
         Button.pack(fill = "both", side = "left", expand = True)
@@ -73,9 +150,9 @@ class Leave(tk.Frame):
         label.pack(side = "top", fill = "x", pady = 10)
 
         Button = tk.Button(self, text = "Back", command = lambda: controller.show_window("Start"))
-        Button2 = tk.Button(self, text = "Please click here when coat is hung", command = lambda: controller.show_window("Start"))
+        Button2 = tk.Button(self, text = "Please click here when coat is hung", command = lambda: controller.combineFunc(controller.show_window("Qrcode"),controller.show(),controller.hang()))
 
-        Button.pack(fill = "x", side = "bottom", pady = 10)
+        Button.pack(fill = "x", side = "bottom", pady = 20)
         Button2.pack(fill = "both", side = "top", expand = True)
 
 
@@ -87,11 +164,34 @@ class Retrieve(tk.Frame):
         label = tk.Label(self, text = "Please grab your coat", font = title_font)
         label.pack(side = "top", fill = "x", pady = 10)
 
-        Button = tk.Button(self, text = "Back", command = lambda: controller.show_window("Start"))
-        Button2 = tk.Button(self, text = "Please click here when coat is grabbed", command = lambda: controller.show_window("Start"))
+        Button = tk.Button(self, text = "Please click here when coat is grabbed", command = lambda: controller.combineFunc(controller.show_window("Start"),controller.hang()))
+        
+        Button.pack(fill = "both", side = "top", expand = True)
 
-        Button.pack(fill = "x", side = "bottom", pady = 10)
-        Button2.pack(fill = "both", side = "top", expand = True)
+class Qrcode(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+        label = tk.Label(self, text = "Please hang your coat", font = title_font)
+        label.pack(side = "top", fill = "x", pady = 10)
+
+        self.img_label = tk.Label(self)
+        self.img_label.pack(side = "top")
+
+        Button = tk.Button(self, text = "Please click here when you took a picture", command = lambda: controller.show_window("Start"))
+
+        Button.pack(fill = "both", side = "bottom", pady = 20)
+
+    def show(self):
+        customer_id = self.controller.id_generator()
+        algo.hang(customer_id)
+        qr.add_data(customer_id)
+        qr.make()
+        img = qr.make_image()
+        imgtk = ImageTk.PhotoImage(image = img)
+        self.img_label.imgtk = imgtk
+        self.img_label.configure(image=imgtk)
 
 
 class Scanner(object):
@@ -160,7 +260,7 @@ class ScanWindow(tk.Frame):
         self.img_label.pack(side = "top")
 
         close_button = tk.Button(self, text = "back", command = lambda: controller.stop("Start"))
-        close_button.pack(fill = "x", side = "bottom", pady = 10)
+        close_button.pack(fill = "x", side = "bottom", pady = 20)
 
         self.scanner = None
 
@@ -217,6 +317,9 @@ class ScanWindow(tk.Frame):
         self.lock.release()
 
         print 'received symbol', '"%s"' % symbol_data
+        temp = symbol_data[-8:]
+        algo.take(temp) # let algo turn the wheel
+        self.controller.grab()
         self.after(500, self.quit)
 
     def on_frame(self, *args):
