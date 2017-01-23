@@ -13,3 +13,6 @@
 [submodule "garderobot_ws/src/universal_robot"]
 	path = garderobot_ws/src/universal_robot
 	url = git@github.com:ros-industrial/universal_robot.git
+[submodule "threemxl"]
+	path = threemxl
+	url = git@github.com:wcaarls/threemxl.git

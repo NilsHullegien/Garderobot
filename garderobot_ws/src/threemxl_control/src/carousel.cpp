@@ -1,4 +1,8 @@
+#include <math.h>
+#include <ctime>
 #include "threemxl_control/carousel.h"
+
+using namespace std;
 
 #define SAFE_CALL(call) \
     do { \
@@ -10,6 +14,7 @@
 
 float ratio = 183;
 WORD encoder_count = 500;
+double wheel_diameter = 0.7;
 //Full rotation (2 pi) = 500 * 183 = 91500
 //Per position: 91500/11 = 8318.18 ticks
 
@@ -34,8 +39,12 @@ Carousel::Carousel()
 
   // Setting the motor to PWM mode
   motor->setEncoderCountMotor(encoder_count);
+  motor->setEncoderCountJoint((WORD)encoder_count * ratio);
   motor->setGearboxRatioMotor(ratio);
-  motor->set3MxlMode(PWM_MODE);
+  motor->setWheelDiameter(wheel_diameter);
+  motor->setEncoderIndexLevelMotor(1);
+
+  motor->set3MxlMode(SPEED_MODE);
   
   printf("Initializing...\n");
   while(motor->init(false) != DXL_SUCCESS)
@@ -45,7 +54,27 @@ Carousel::Carousel()
   } 
   printf("Started!\n");
 
-  SAFE_CALL(motor->setPWM((double)0.5));
+  time_t start_time;
+  time(&start_time);
+
+  time_t current_time;
+
+  do {
+    motor->setSpeed(1.0);
+
+    SAFE_CALL(motor->getState());
+
+    time(&current_time);
+
+    double pos = motor->presentPos();
+    double speed = motor->presentSpeed();
+
+    double s = current_time - start_time;
+
+    cout << s << ": " << speed << " (" << pos << ")" << endl;
+  } while (true);
+
+  printf("Last command finished!\n");
   sleep(5);
 }
 
