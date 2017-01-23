@@ -21,17 +21,17 @@ struct Carousel
       
       motor = new C3mxl();
       motor->setSerialPort(serial_port);
-      motor->setConfig(config->setID(107));
 
       // Setting the motor to PWM mode
-      motor->setEncoderCountMotor(encoder_count);
-      motor->setEncoderCountJoint((WORD)encoder_count * ratio);
-      motor->setGearboxRatioMotor(ratio);
-      motor->setWheelDiameter(wheel_diameter);
-      motor->setEncoderIndexLevelMotor(1);
+      // motor->setEncoderCountMotor(encoder_count);
+      // motor->setGearboxRatioMotor(ratio);
+      // motor->setWheelDiameter(wheel_diameter);
+      // motor->setEncoderIndexLevelMotor(1);
+
+      motor->setConfig(config->setID(107));
 
       printf("Initializing...\n");
-      while(motor->init(false) != DXL_SUCCESS)
+      while(motor->init(true) != DXL_SUCCESS)
       {
         printf("Failed to init, trying again...\n");
         sleep(0.1);
@@ -40,24 +40,48 @@ struct Carousel
   void external_init(double speed, double acc, double torque)
     {
       motor->set3MxlMode(EXTERNAL_INIT);
-      motor->setSpeed(1);
-      motor->setAcceleration(1);
-      motor->setTorque(1);
+      motor->setSpeed(speed);
+      motor->setAcceleration(acc);
+      motor->setTorque(torque);
     }
   void set_speed_mode()
     {
       motor->set3MxlMode(SPEED_MODE);
     }
-  void set_speed_acc_torque(double speed, double acc, double torque)
+  void set_pwm_mode()
+    {
+      motor->set3MxlMode(PWM_MODE);
+    }
+  void set_speed(double speed)
     {
       motor->setSpeed(speed);
+    }
+  void set_acceleration(double acc)
+    {
       motor->setAcceleration(acc);
+    }
+  void set_torque(double torque)
+    {
       motor->setTorque(torque);
+    }
+  void set_pwm(double width)
+    {
+      motor->setPWM(width);
     }
   double get_position()
     {
       motor->getPos();
       return motor->presentPos();
+    }
+  double get_speed()
+    {
+      motor->getPosAndSpeed();
+      return motor->presentSpeed();
+    }
+  double get_acceleration()
+    {
+      motor->getPosAndSpeed();
+      return motor->presentAcceleration();
     }
   std::string test()
     {
@@ -74,8 +98,14 @@ BOOST_PYTHON_MODULE(carousel)
   class_<Carousel>("Carousel", init<std::string>())
     .def("external_init", &Carousel::external_init)
     .def("set_speed_mode", &Carousel::set_speed_mode)
-    .def("set_speed_acc_torque", &Carousel::set_speed_acc_torque)
+    .def("set_pwm_mode", &Carousel::set_pwm_mode)
+    .def("set_speed", &Carousel::set_speed)
+    .def("set_acceleration", &Carousel::set_acceleration)
+    .def("set_torque", &Carousel::set_torque)
+    .def("set_pwm", &Carousel::set_pwm)
     .def("get_position", &Carousel::get_position)
+    .def("get_speed", &Carousel::get_speed)
+    .def("get_acceleration", &Carousel::get_acceleration)
     .def("test", &Carousel::test)
   ;
 };
