@@ -17,8 +17,11 @@ source devel/setup.bash
 rosrun moveit_commander moveit_commander_cmdline.py 
 use manipulator
 
+https://pypi.python.org/pypi/math3d/ Math3d, nodig als subpackage
+https://github.com/SintefRaufossManufacturing/python-urx Python URX, code van de bewegingen van de UR5 (clonen van repo)
 Direct praten met de UR5, library:
 https://github.com/SintefRaufossManufacturing/python-urx
 
 Recorden UR5 movement:
 https://github.com/personalrobotics/joint_state_recorder
+>>>>>>> origin/master
