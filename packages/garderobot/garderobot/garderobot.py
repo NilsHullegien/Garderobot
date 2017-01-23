@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 
 #from .errors import *
+import socket
 
+Hookposition = 0
+Turned = False
+Remote_IP = "192.168.0.104"
+Host_IP = "192.168.0.102"
+Port = 5005
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((Host_IP,Port))
 class Garderobot(object):
   
     def __init__(self, size, threshold):
@@ -32,8 +40,8 @@ class Garderobot(object):
     def has_space(self):
         return self.count() < self.size
 
-    def hang(self, customer_id):
-        position = self.generatePosition()
+    def hang(self, customer_id, pos):
+        position = pos
         if self.rack.has_key(customer_id):
           self.rack[customer_id].append(position)
         else:
@@ -45,18 +53,22 @@ class Garderobot(object):
 
     # TODO implement
     def take(self, customer_id, position=-1):
+        global Hookposition
         print("BEFORE TAKE")
         print(self.rack)
+        if customer_id == 0:
+            Hookposition = generatePosition()
+            self.turn_wheel(Hookposition)
         if(position < 0):
             if len(self.rack[customer_id]) == 1: #Extra check
-                self.pickup_jacket(self.rack[customer_id])
+                self.turn_wheel(self.rack[customer_id])
                 self.rack.pop(customer_id)
             else:
               raise Exception("PROGRAMMING FAILURE IN TAKE METHOD (Pos < 0)")
             
         else: # position >= 0
           if position in self.rack[customer_id]: #Extra check
-              SELF.pickup_jacket(position)
+              SELF.turn_wheel(position)
               self.rack[customer_id].remove(position)
           else:
             raise Exception("PROGRAMMING FAILURE IN TAKE METHOD (Pos >=0)")
@@ -168,28 +180,29 @@ class Garderobot(object):
 
 
     #TODO: IMPLEMENT WITH UR5
-    def pickup_jacket(self, position):
-      print("PICKING UP THE JACKET FROM POSITION: ", position)
-      return self
+    def turn_wheel(self, position):
+        global Turned
+        sock.sendto("turn_wheel".join(str[position]),(Remote_IP,Port))
+        while True:
+            data, addr = sock.recvfrom(1024)
+            if data == "turned":
+                break
+        Turned = True
+        return self
 
     def empty(self):
         self.rack = dict()
         return self
 
+    def getPosition(self):
+        global Hookposition
+        return Hookposition
 
-if __name__ == "__main__":
-    print "Initializing wardrobe..."
-    wr = Garderobot(11, 2)
-    print wr.count(), wr
-    print wr.isBalanceOkay(3, wr.rack)
-    print "Hanging a jacket on position 6..."
-    wr.hang(6)
-    print "Hanging a jacket on position 0..."
-    wr.hang(0)
-    print "Hanging a jacket on position 3..."
-    wr.hang(3)
-    print wr.count(), wr
-    print "Taking a jacket from position 6..."
-    wr.take(6)
-    print wr.count(), wr
+    def Wheelturned(self):
+        global Turned
+        return Turned
+
+    def Unturn(self):
+        global Turned
+        Turned = False
 
