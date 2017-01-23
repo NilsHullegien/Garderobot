@@ -37,12 +37,13 @@ struct Carousel
         sleep(0.1);
       }
     }
-  void external_init(double speed, double acc, double torque)
+  void external_init()
     {
       motor->set3MxlMode(EXTERNAL_INIT);
-      motor->setSpeed(speed);
-      motor->setAcceleration(acc);
-      motor->setTorque(torque);
+      motor->setSpeed(0.1);
+      motor->setAcceleration(0.1);
+      motor->setTorque(0);
+      motor->setPWM(0.2);
     }
   void set_speed_mode()
     {

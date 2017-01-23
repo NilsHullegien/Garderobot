@@ -13,8 +13,7 @@ if __name__ == "__main__":
 
 	offset = 10
 	while offset > 0.2:
-		raw_input("Press ENTER to start init")
-		c.external_init(0.1, 0.1, 0)
+		c.external_init()
 		time.sleep(0.3)
 	
 		while c.get_speed() != 0:
@@ -26,9 +25,9 @@ if __name__ == "__main__":
 	raw_input("Press ENTER to start")
 
 	c.set_pwm_mode()
-	c.set_pwm(0.999)
+	c.set_pwm(-0.3)
 
-	pos = wait_for_position(8, c)
+	pos = wait_for_position(16, c)
 	c.set_pwm(0)
 	print("Should be 8: {}".format(pos))
 
