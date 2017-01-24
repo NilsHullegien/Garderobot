@@ -11,12 +11,12 @@ import random
 import socket
 
 from PIL import Image, ImageTk
-
-Remote_IP = "192.168.0.104"
-Host_IP = "192.168.0.102"
+Remote_IP = "192.168.1.28"
+Host_IP = "192.168.1.54"
 Port = 5005
 to_user = "user"
 to_carousel = "carousel"
+rest = "idle"
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((Host_IP,Port))
 
@@ -31,7 +31,7 @@ qr = qrcode.QRCode(
     )
 idle = True
 pos = 0
-class Gardegui(tk.Tk):
+class Gardegui(tk.Tk): 
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -43,7 +43,7 @@ class Gardegui(tk.Tk):
         root.grid_columnconfigure(0, weight = 1)
 
         self.windows = {}
-        for F in (Start, Leave, Retrieve, ScanWindow, Qrcode):
+        for F in (Start, Leave, Retrieve, ScanWindow, Qrcode): 
             page_name = F.__name__
             window = F(parent = root, controller = self)
             self.windows[page_name] = window
@@ -82,10 +82,10 @@ class Gardegui(tk.Tk):
         global grab
         global to_user
 
-        algo.take(customer_id)
-            pos = algo.getPosition()
+        algo.take(customer_id, sock)
+        pos = algo.getPosition()
         while True:
-            if Wheelturned():
+            if algo.Wheelturned():
                 break
 
         algo.Unturn()
@@ -111,6 +111,7 @@ class Gardegui(tk.Tk):
         global idle
         global hang
         global to_carousel
+        global rest
         if idle == True:
             idle = False
             sock.sendto(to_carousel,(Remote_IP,Port))
@@ -174,7 +175,7 @@ class Retrieve(tk.Frame):
         Button.pack(fill = "both", side = "top", expand = True)
 
 class Qrcode(tk.Frame):
-
+        
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
         self.controller = controller
@@ -184,19 +185,21 @@ class Qrcode(tk.Frame):
         self.img_label = tk.Label(self)
         self.img_label.pack(side = "top")
 
-        Button = tk.Button(self, text = "Please click here when you took a picture", font = label_font, command = lambda: controller.show_window("Start"))
+        self.ButtonQR = tk.Button(self, text = "Please click here when you took a picture", font = label_font, command = lambda: controller.show_window("Start"))
 
-        Button.pack(fill = "both", side = "bottom", pady = 20)
+        self.ButtonQR.pack(fill = "both", side = "bottom", pady = 20)
 
     def show(self,position):
         customer_id = self.controller.id_generator()
         algo.hang(customer_id,position)
+        qr.clear()
         qr.add_data(customer_id)
         qr.make()
         img = qr.make_image()
         imgtk = ImageTk.PhotoImage(image = img)
         self.img_label.imgtk = imgtk
         self.img_label.configure(image=imgtk)
+        self.ButtonQR.lift()
 
 
 class Scanner(object):
@@ -352,14 +355,7 @@ if __name__ == "__main__":
             full = True
         gui.attributes("-fullscreen", full)
 
-    #def on_closing():
-     #   if mb.askyesno("Quit", "do you want to exit the listener too?"):
-      #      sock.sendto(stop,(Remote_IP,Port))
-       #     gui.destroy()
-        #else:
-         #   gui.destroy()
-
-    #gui.protocol('WM_DELETE_WINDOW', on_closing)
+    
     gui.bind("<Escape>", toggle_fullscreen)
     
     gui.mainloop()

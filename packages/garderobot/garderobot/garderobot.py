@@ -1,15 +1,10 @@
-#!/usr/bin/env python3
-
-#from .errors import *
 import socket
 
 Hookposition = 0
 Turned = False
-Remote_IP = "192.168.0.104"
-Host_IP = "192.168.0.102"
+Remote_IP = "192.168.1.28"
+Host_IP = "192.168.1.54"
 Port = 5005
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((Host_IP,Port))
 class Garderobot(object):
   
     def __init__(self, size, threshold):
@@ -22,11 +17,11 @@ class Garderobot(object):
             "789012": [7, 8]
         }
         """
-        
         self.rack = {} 
         self.size = size
         self.threshold = threshold
         self.procList = [0,4,8,1,5,9,2,7,6,3,10]
+        self.positions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def __str__(self):
         return repr(self.rack)
@@ -45,30 +40,39 @@ class Garderobot(object):
         if self.rack.has_key(customer_id):
           self.rack[customer_id].append(position)
         else:
-          self.rack[customer_id] = [position]  
+          self.rack[customer_id] = [position]
+          self.positions[position] = 1
           
         print(self.rack)
 
         return self
 
-    # TODO implement
-    def take(self, customer_id, position=-1):
+   
+    def take(self, customer_id, sock, position=-1):
         global Hookposition
         print("BEFORE TAKE")
         print(self.rack)
         if customer_id == 0:
-            Hookposition = generatePosition()
-            self.turn_wheel(Hookposition)
+            Hookposition = -1
+            while Hookposition < 0:
+                Hookposition = self.generatePosition()
+            self.turn_wheel(Hookposition, sock)
+            self.positions[Hookposition] = 0
+            print("AFTER TAKE")
+            print(self.rack)
+            print("============")
+            return self
         if(position < 0):
             if len(self.rack[customer_id]) == 1: #Extra check
-                self.turn_wheel(self.rack[customer_id])
+                self.turn_wheel(self.rack[customer_id][0], sock)
+                self.positions[self.rack[customer_id][0]] = 0
                 self.rack.pop(customer_id)
             else:
               raise Exception("PROGRAMMING FAILURE IN TAKE METHOD (Pos < 0)")
             
         else: # position >= 0
           if position in self.rack[customer_id]: #Extra check
-              SELF.turn_wheel(position)
+              self.turn_wheel(position, sock)
               self.rack[customer_id].remove(position)
           else:
             raise Exception("PROGRAMMING FAILURE IN TAKE METHOD (Pos >=0)")
@@ -107,20 +111,20 @@ class Garderobot(object):
           print("ErrorNR", errorNr)
           if errorNr < 0:
             if errorPos == "fs":
-              return searchForFreePos(0,size/2)
+              return self.searchForFreePos(0,self.size/2)
             elif errorPos == "tb":
-              try_1 = searchForFreePos(0,size/4)
+              try_1 = self.searchForFreePos(0,self.size/4 + 1)
               if try_1 == -1:
-                return searchForFreePos(size*3/4,size/4)
+                return self.searchForFreePos(self.size*3/4,self.size)
               else:
                 return try_1
             else:
               raise Exception("PROGRAMMER FAILURE <0: ",errorPos)
           elif errorNr > 0:
             if errorPos == "fs":
-              return searchForFreePos(size/2,size)
+              return self.searchForFreePos(self.size/2,self.size)
             elif errorPos == "tb":
-              return searchForFreePos(size/4,size*3/4)
+              return self.searchForFreePos(self.size/4,self.size*3/4)
             else:
               raise Exception("PROGRAMMER FAILURE >0: ",errorPos)
           else:
@@ -129,12 +133,12 @@ class Garderobot(object):
 
     #Search for a free spot in the range(start,end).
     #Returns the position or -1 when no position is found in the range.
-    def searchForFreePos(start,end):
-      print("Searching in range: ", start, "to", end)
+    def searchForFreePos(self, start, end):
+      print "Searching in range: ", start, "to", end 
       for i in range(start,end):
-        print("Checking: ",i)
-        print("Value: ",positions[i])
-        if positions[i] == 0:
+        print "Checking: ",i
+        print "Value: ", self.positions[i] 
+        if self.positions[i] == 0:
           return i
       return -1
 
@@ -179,10 +183,10 @@ class Garderobot(object):
         return "fs", firstHalf - secondHalf, False
 
 
-    #TODO: IMPLEMENT WITH UR5
-    def turn_wheel(self, position):
+    def turn_wheel(self, position, sock):
         global Turned
-        sock.sendto("turn_wheel".join(str[position]),(Remote_IP,Port))
+        
+        sock.sendto("turn_wheel"+str(position),(Remote_IP,Port))
         while True:
             data, addr = sock.recvfrom(1024)
             if data == "turned":
